@@ -17,6 +17,22 @@ Route::get('/', function () {
 
 Route::get('/payment/process', 'PaymentsController@process')->name('payment.process');
 
+Route::get('/payment', function () {
+
+	$checkoutSession = session('checkout', array());
+
+	if ( $checkoutSession['currency'] == 'USD' )
+	{
+		return view('braintreeForm');
+	}
+	elseif ( $checkoutSession['currency'] == 'THB' ) 
+	{
+		return view('paypalForm');
+	}
+
+    
+});
+
 Route::get('/validation', 'ValidationController@showform');
 Route::post('/validation', 'ValidationController@validateform');
 

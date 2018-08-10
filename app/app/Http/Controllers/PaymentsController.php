@@ -8,11 +8,7 @@ use Illuminate\Http\Request;
 
 class PaymentsController extends Controller
 {
-	public function showBraintreeForm() 
-	{
-      return view('braintreeForm');
-    }
-    
+
     public function process(Request $request)
 	{
 	    $payload = $request->input('payload', false);

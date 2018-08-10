@@ -14,7 +14,7 @@
       @endif
 
       <?php
-         echo Form::open(array('url'=>'/order'));
+         echo Form::open(array('url'=>'/checkout'));
       ?>
 
       <table border = '1'>
@@ -31,6 +31,11 @@
           <tr>
             <td>Last name</td>
             <td><?php echo Form::text('lastname'); ?></td>
+         </tr>
+
+         <tr>
+            <td>Currency</td>
+            <td><?php echo Form::select('currency', array('USD' => 'USD', 'THB' => 'THB'), 'USD'); ?></td>
          </tr>
 
          <tr>

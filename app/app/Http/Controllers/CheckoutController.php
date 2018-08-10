@@ -20,7 +20,7 @@ class CheckoutController extends Controller
 
    		//$value = $request->session()->get('checkout', array());
 
-   		return redirect('/');
+   		return redirect('/payment');
 
    }
 }
