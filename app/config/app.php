@@ -153,6 +153,8 @@ return [
 
         Collective\Html\HtmlServiceProvider::class,
 
+        App\Providers\HelperServiceProvider::class,
+
         /*
          * Application Service Providers...
          */

@@ -12,10 +12,11 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('checkoutForm');
 });
 
 Route::get('/payment/process', 'PaymentsController@process')->name('payment.process');
+Route::get('/payment/paypal', 'PaymentsController@paypal');
 
 Route::get('/payment', function () {
 
@@ -27,7 +28,9 @@ Route::get('/payment', function () {
 	}
 	elseif ( $checkoutSession['currency'] == 'THB' ) 
 	{
-		return view('paypalForm');
+		return redirect()->action('PaymentsController@paypal');
+		
+		//return view('paypalForm');
 	}
 
     
