@@ -367,6 +367,7 @@ class ComposerStaticInitf8331833126cd84c83a3722e7272dd4d
 
     public static $classMap = array (
         'App\\Box' => __DIR__ . '/../..' . '/app/Box.php',
+        'App\\Braintree' => __DIR__ . '/../..' . '/app/Braintree.php',
         'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
         'App\\Http\\Controllers\\Auth\\ForgotPasswordController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/ForgotPasswordController.php',
@@ -386,6 +387,7 @@ class ComposerStaticInitf8331833126cd84c83a3722e7272dd4d
         'App\\Http\\Middleware\\VerifyCsrfToken' => __DIR__ . '/../..' . '/app/Http/Middleware/VerifyCsrfToken.php',
         'App\\Http\\Requests\\CheckoutPostRequest' => __DIR__ . '/../..' . '/app/Http/Requests/CheckoutPostRequest.php',
         'App\\Http\\Requests\\OrderPostRequest' => __DIR__ . '/../..' . '/app/Http/Requests/OrderPostRequest.php',
+        'App\\Paypal' => __DIR__ . '/../..' . '/app/Paypal.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',
         'App\\Providers\\AuthServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AuthServiceProvider.php',
         'App\\Providers\\BroadcastServiceProvider' => __DIR__ . '/../..' . '/app/Providers/BroadcastServiceProvider.php',

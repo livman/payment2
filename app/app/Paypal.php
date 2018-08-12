@@ -2,18 +2,20 @@
 
 namespace App;
 
-//use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model;
 
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
 
-class Paypal
+class Paypal extends Model
 {
 	private $_client;
 
 	private $_endpoint;
 
 	private $_data;
+
+	protected $table = 'paypal';
 
 	public function __construct($isSandbox = 1)
 	{
