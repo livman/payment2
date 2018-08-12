@@ -12,10 +12,11 @@
 */
 
 Route::get('/', function () {
-    return view('checkoutForm');
+    return view('braintreeForm');
 });
 
 Route::get('/payment/process', 'PaymentsController@process')->name('payment.process');
+Route::post('/payment/payment_process', 'PaymentsController@payment_process')->name('payment.payment_process');
 Route::get('/payment/paypal', 'PaymentsController@paypal');
 
 Route::get('/payment', function () {
