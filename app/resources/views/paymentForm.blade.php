@@ -145,7 +145,7 @@
         </div>
 
         <div class="form-group">
-          <label for="currency" class="control-label">Currency</label>
+          <label for="currency" class="control-label">Currency [ USD, EUR, AUD, THB ... ]</label>
           <input id="currency" name="currency" type="tel" class="input-lg form-control" required>
         </div>
 
