@@ -17,11 +17,11 @@ class Paypal extends Model
 
 	protected $table = 'paypal';
 
-	public function __construct($isSandbox = 1)
+	public function __construct()
 	{
 		$this->_client = new Client();
 
-		$this->_endpoint = ($isSandbox == 1) ? 'https://api.sandbox.paypal.com/v1' : 'https://api.sandbox.paypal.com/v1';
+		$this->_endpoint = env('PAYPAL_ENDPOINT');
 	}
 
 	protected function getAccessToken($auth = array())

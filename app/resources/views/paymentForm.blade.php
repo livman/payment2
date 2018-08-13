@@ -3,84 +3,163 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.3/jquery.min.js"></script>
+  <script src="{{ URL::asset('js/jquery.payment.js') }}"></script>
+
+  <style type="text/css" media="screen">
+     .has-error input {
+       border-width: 2px;
+     }
+     .validation.text-danger:after {
+       content: 'Validation failed';
+     }
+     .validation.text-success:after {
+       content: 'Validation passed';
+     }
+   </style>
+
+   <script>
+
+    function checkEmptyInput(object)
+    {
+      if(object.val() == '')
+      {
+        object.toggleInputError(true); 
+      }
+      else
+      {
+        object.toggleInputError(false); 
+      }
+    }
+
+    function submitForm()
+    {
+      var cardType = $.payment.cardType($('.cc-number').val());
+      $('.cc-number').toggleInputError(!$.payment.validateCardNumber($('.cc-number').val()));
+      $('.cc-exp').toggleInputError(!$.payment.validateCardExpiry($('.cc-exp').payment('cardExpiryVal')));
+      $('.cc-cvc').toggleInputError(!$.payment.validateCardCVC($('.cc-cvc').val(), cardType));
+      $('.cc-brand').text(cardType);
+      $('.validation').removeClass('text-danger text-success');
+
+      checkEmptyInput($('#c_firstname'));
+      checkEmptyInput($('#c_lastname'));
+      checkEmptyInput($('#c_email'));
+      checkEmptyInput($('#c_phonenumber'));
+      checkEmptyInput($('#currency'));
+      checkEmptyInput($('#amount'));
+
+      
+      
+
+      if( $('.has-error').length  )
+      {
+         $('.validation').addClass('text-danger');
+         //$('form').preventDefault();
+         return false;
+      } else {
+         //$('form').submit();
+         return true;
+      }
+    }
+
+
+     jQuery(function($) {
+
+      $('#amount').keypress(function (e) {
+
+        var code = !e.charCode ? e.which : e.charCode;
+        var value = $('#amount').val();
+
+
+          var regex = new RegExp("^[0-9.]+$");
+          var str = String.fromCharCode(code);
+          if (regex.test(str)) {
+              return true;
+          }
+
+          e.preventDefault();
+          return false;
+      });
+
+       //$('[data-numeric]').payment('restrictNumeric');
+       
+       
+       $('.cc-number').payment('formatCardNumber');
+       $('.cc-exp').payment('formatCardExpiry');
+       $('.cc-cvc').payment('formatCardCVC');
+       $.fn.toggleInputError = function(erred) {
+         this.parent('.form-group').toggleClass('has-error', erred);
+         return this;
+       };
+
+
+     });
+   </script>
+
 <title>Checkout</title>
 </head>
 <body>
 <link href="{{ URL::asset('css/style.css') }}" type="text/css" rel="stylesheet" />
-<h1 class="bt_title">Braintree Custom Integration</h1>
+<h1 class="bt_title">Payment Info</h1>
 <div class="dropin-page">
-  <form id="checkout" method="post" action="{{ route('payment.payment_process') }}">
-    <h4 class="bt_title">Customer Information</h4>
-    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-    <input type="hidden" name="invoiceid" value="123456">
-     <fieldset class="one_off_firstname">
-      <label class="input-label" for="firstname">
-      <span class="field-name">First Name</span>
-      <input id="c_firstname" name="c_firstname" class="input-field card-field" type="text" placeholder="First Name" autocomplete="on">
-      <div class="invalid-bottom-bar"></div>
-      </label>
-    </fieldset>
-    <fieldset class="one_off_lastname">
-      <label class="input-label" for="lastname">
-      <span class="field-name">Last Name</span>
-      <input id="c_lastname" name="c_lastname" class="input-field card-field" type="text" placeholder="Last Name" autocomplete="on">
-      <div class="invalid-bottom-bar"></div>
-      </label>
-    </fieldset>
-    <fieldset class="one_off_lastname">
-      <label class="input-label" for="email">
-      <span class="field-name">Email</span>
-      <input id="c_email" name="c_email" class="input-field card-field" type="text" placeholder="Email" autocomplete="on">
-      <div class="invalid-bottom-bar"></div>
-      </label>
-    </fieldset>
-    <fieldset class="one_off_phonenumber">
-      <label class="input-label" for="phonenumber">
-      <span class="field-name">Phone Number</span>
-      <input id="c_phonenumber" name="c_phonenumber" class="input-field card-field" type="text"placeholder="Phone Number" autocomplete="on">
-      <div class="invalid-bottom-bar"></div>
-      </label>
-    </fieldset>
-    <h4 class="bt_title">Credit Card Details</h4>
-    <fieldset class="one_off_country">
-      <label class="input-label" for="country">
-      <span class="field-name">Card number</span>
-      <input id="card_number" name="card_number" class="input-field card-field" type="text" placeholder="Card number" autocomplete="on">
-      <div class="invalid-bottom-bar"></div>
-      </label>
-    </fieldset>
-    <fieldset class="one_off_country">
-      <label class="input-label" for="country">
-      <span class="field-name">CVV</span>
-      <input id="CVV" name="cvv" class="input-field card-field" type="text" placeholder="CVV" autocomplete="on">
-      <div class="invalid-bottom-bar"></div>
-      </label>
-    </fieldset>
-    <fieldset class="one_off_country">
-      <label class="input-label" for="country">
-      <span class="field-name">Expiration date (MM/YY)</span>
-      <input id="exp_date" name="exp_date" class="input-field card-field" type="text" placeholder="Expiration date (MM/YY)" autocomplete="on">
-      <div class="invalid-bottom-bar"></div>
-      </label>
-    </fieldset>
-    <fieldset class="one_off_currency">
-      <label class="input-label" for="currency">
-      <span class="field-name">Currency</span>
-      <input id="currency" name="currency" class="input-field card-field" type="text" placeholder="Currency" autocomplete="on" step="any">
-      <div class="invalid-bottom-bar"></div>
-      </label>
-    </fieldset>
-    <fieldset class="one_off_amount">
-      <label class="input-label" for="amount">
-      <span class="field-name">Amount</span>
-      <input id="amount" name="amount" class="input-field card-field" type="number" inputmode="numeric" placeholder="Amount" autocomplete="on" step="any">
-      <div class="invalid-bottom-bar"></div>
-      </label>
-    </fieldset>
-    <div class="btn_container">
-      <input type="submit" name="make_payment" value="Make Payment" class="pay-btn">
-      <span class="loader_img"></span> </div>
-  </form>
+
+
+  <form novalidate autocomplete="on" method="POST" onsubmit="return submitForm()" action="{{ route('payment.payment_process') }}">
+        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+
+        <div class="form-group">
+          <label for="c_firstname" class="control-label">First Name</label>
+          <input id="c_firstname" name="c_firstname" type="tel" class="input-lg form-control cc-firstname" required>
+        </div>
+
+        <div class="form-group">
+          <label for="c_lastname" class="control-label">Last Name</label>
+          <input id="c_lastname" name="c_lastname" type="tel" class="input-lg form-control" required>
+        </div>
+
+        <div class="form-group">
+          <label for="c_email" class="control-label">Email</label>
+          <input id="c_email" name="c_email" type="tel" class="input-lg form-control" required>
+        </div>
+
+        <div class="form-group">
+          <label for="c_phonenumber" class="control-label">Phone Number</label>
+          <input id="c_phonenumber" name="c_phonenumber" type="tel" class="input-lg form-control" required>
+        </div>
+
+
+        <div class="form-group">
+          <label for="cc-number" class="control-label">Card number formatting <small class="text-muted">[<span class="cc-brand"></span>]</small></label>
+          <input id="cc-number" name="card_number" type="tel" class="input-lg form-control cc-number" autocomplete="cc-number" placeholder="•••• •••• •••• ••••" required>
+        </div>
+
+        <div class="form-group">
+          <label for="cc-exp" class="control-label">Card expiry formatting</label>
+          <input id="cc-exp" type="tel" name="exp_date" class="input-lg form-control cc-exp" autocomplete="cc-exp" placeholder="•• / ••" required>
+        </div>
+
+        <div class="form-group">
+          <label for="cc-cvc" class="control-label">Card CVC formatting</label>
+          <input id="cc-cvc" type="tel" name="cvv" class="input-lg form-control cc-cvc" autocomplete="off" placeholder="•••" required>
+        </div>
+
+        <div class="form-group">
+          <label for="currency" class="control-label">Currency</label>
+          <input id="currency" name="currency" type="tel" class="input-lg form-control" required>
+        </div>
+
+        <div class="form-group">
+          <label for="amount" class="control-label">Amount</label>
+          <input id="amount" name="amount" type="tel" class="input-lg form-control" data-amount required>
+        </div>
+
+
+        <button type="submit" id="submit" class="btn btn-lg btn-primary">Submit</button>
+
+        <h2 class="validation"></h2>
+      </form>
+
 </div>
 </body>
 </html>
