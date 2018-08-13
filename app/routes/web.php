@@ -12,7 +12,7 @@
 */
 
 Route::get('/', function () {
-    return view('braintreeForm');
+    return view('paymentForm');
 });
 
 Route::get('/payment/process', 'PaymentsController@process')->name('payment.process');

@@ -33,6 +33,8 @@ class PaymentsController extends Controller
 		$paypalModel = new Paypal();
 		$paypalModel->processSale($paramPaypal);
 
+		$paypalModel->getPaymentInfo();
+
 		$approval_url = $paypalModel->getApprovalUrl();
 
 		if ( $approval_url == '' )
@@ -78,7 +80,7 @@ class PaymentsController extends Controller
 			'amount' => $param['amount']
 		);
 
-		$braintreeModel->createSale($info);
+		return $braintreeModel->createSale($info);
 
 	}
 
@@ -115,8 +117,12 @@ class PaymentsController extends Controller
 		else
 		{
 			// Use Braintree
-			$this->braintree($param);
+			$res = $this->braintree($param);
+
+			$data['success'] = $res;
 		}
+
+		return response()->view('success', $data, 200);
 
 	}
 

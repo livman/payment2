@@ -114,7 +114,7 @@ class Braintree extends Model
     		if ($result->success)
     		{
     		  // Execute on payment success event at here
-    			print_r($result); die;
+    			return true;
     		}
     		else
     		{

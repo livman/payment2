@@ -11,7 +11,7 @@ class CheckoutController extends Controller
 
    public function showform() 
    {
-      return view('checkoutForm');
+      return view('paymentForm');
    }
 
    public function process(CheckoutPostRequest $request) 

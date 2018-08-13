@@ -70,6 +70,48 @@ class Paypal extends Model
 		return $approval_url;
 	}
 
+	public function getPaymentInfoUrl()
+	{
+		$paymentInfo_url = '';
+
+		if (! isset($this->_data['saleInfo']) ) return $paymentInfo_url;
+
+		foreach($this->_data['saleInfo']['links'] as $item)
+		{
+			if( strtolower($item['method']) == 'get' )
+			{
+				$paymentInfo_url = $item['href'];
+				break;
+			}
+		}
+
+		return $paymentInfo_url;
+	}
+
+	public function getPaymentInfo()
+	{
+
+		try {
+			$response = $this->_client->request('GET', 
+            	$this->getPaymentInfoUrl(), 
+            	[ 
+             		'headers' => array(
+	             		'Accept'          => 'application/json',
+	             		'Authorization'   => 'Bearer '. $this->_data['access_token'],
+	             	)
+            	]);
+			
+		} catch (GuzzleException $e) {
+			echo 'Message: ' .$e->getMessage(); die;
+		}
+
+		
+		$jsonResponse = json_decode((string)$response->getBody(), true);
+
+		return $this;
+
+	}
+
 
 	public function processSale($param = array())
 	{
