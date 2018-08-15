@@ -4,12 +4,18 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
+use Illuminate\Support\Facades\Session;
+
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
 
 class Paypal extends Model
 {
 	private $_client;
+
+	private $_header;
+
+	private $_auth;
 
 	private $_endpoint;
 
@@ -24,17 +30,32 @@ class Paypal extends Model
 		$this->_endpoint = env('PAYPAL_ENDPOINT');
 	}
 
-	protected function getAccessToken($auth = array())
+	public function setAuth($auth = array())
+	{
+		$this->_auth = $auth;
+	}
+
+	public function getAuth()
+	{
+		return $this->_auth;
+	}
+
+	public function getAccessToken(Paypal $paypal)
+	{
+		return (isset($paypal->_data['access_token'])) ? $paypal->_data['access_token'] : '';
+	}
+
+	public function generateAccessToken(Paypal $paypal)
 	{
 		try {
-			$response = $this->_client->request('POST', 
-            	$this->_endpoint .'/oauth2/token', 
+			$response = $paypal->_client->request('POST', 
+            	$paypal->_endpoint .'/oauth2/token', 
             	[ 
              		'headers' => array(
 	             		'Accept'          => 'application/json',
 	             		'Accept-Language' => 'en_US',
 	             	),
-            		'auth' => $auth,
+            		'auth' => $paypal->_auth,
                  	'form_params' => array(
                  		'grant_type' => 'client_credentials'
                  	)
@@ -47,9 +68,11 @@ class Paypal extends Model
 		// convert response json to object
 		$jsonResponse = json_decode((string)$response->getBody(), true);
 
-		$this->_data['access_token'] = $jsonResponse['access_token'];
+		$paypal->_data['access_token'] = $jsonResponse['access_token'];
 
-		return $this;
+		//Session::put('paypal_access_token', $paypal->_data['access_token']);
+
+		return $paypal;
 	}
 
 	public function getApprovalUrl()
@@ -70,13 +93,13 @@ class Paypal extends Model
 		return $approval_url;
 	}
 
-	public function getPaymentInfoUrl()
+	public function getPaymentInfoUrl(Paypal $paypal)
 	{
 		$paymentInfo_url = '';
 
-		if (! isset($this->_data['saleInfo']) ) return $paymentInfo_url;
+		if (! isset($paypal->_data['saleInfo']) ) return $paymentInfo_url;
 
-		foreach($this->_data['saleInfo']['links'] as $item)
+		foreach($paypal->_data['saleInfo']['links'] as $item)
 		{
 			if( strtolower($item['method']) == 'get' )
 			{
@@ -88,12 +111,12 @@ class Paypal extends Model
 		return $paymentInfo_url;
 	}
 
-	public function getPaymentInfo()
+	public function getPaymentInfo(Paypal $paypal)
 	{
 
 		try {
-			$response = $this->_client->request('GET', 
-            	$this->getPaymentInfoUrl(), 
+			$response = $paypal->_client->request('GET', 
+            	$paypal->getPaymentInfoUrl(), 
             	[ 
              		'headers' => array(
 	             		'Accept'          => 'application/json',
@@ -106,46 +129,35 @@ class Paypal extends Model
 		}
 
 		
-		$jsonResponse = json_decode((string)$response->getBody(), true);
-
-		return $this;
+		return json_decode((string)$response->getBody(), true);
 
 	}
 
-
-	public function processSale($param = array())
+	public function setCurlHeader(Paypal $paypal, $header = array())
 	{
+		$paypal->_header = $header;
 
-		$this->getAccessToken($param['auth']);
+		return true;
+	}
 
-		$body = array(
- 			'intent' => 'sale',
- 			'redirect_urls' => array(
- 				'return_url' => 'http://br4ndon.online:8777/return_url.php',
- 				'cancel_url' => 'http://br4ndon.online:8777/cancel_url.php'
- 			),
- 			'payer' => array(
- 				'payment_method' => 'paypal'
- 			),
- 			'transactions' => array(
- 				'0' => array(
- 					'amount' => array(
- 						'total' => $param['checkoutInfo']['amount'],
- 						'currency' => $param['checkoutInfo']['currency']
- 					)
- 				)
- 			)
- 		);
+	public function getCurlHeader(Paypal $paypal)
+	{
+		return (isset($paypal->_header)) ? $paypal->_header : array();
+	}
+
+	public function processSale(Paypal $paypal, $param = array())
+	{
+		if( !$paypal->getAuth() )
+		{
+			return false;
+		}
 
 		try {
-			$response = $this->_client->request('POST', 
-            	$this->_endpoint .'/payments/payment', 
+			$response = $paypal->_client->request('POST', 
+            	$paypal->_endpoint .'/payments/payment', 
             	[ 
-             		'headers' => array(
-	             		'Accept'          => 'application/json',
-	             		'Authorization'   => 'Bearer '. $this->_data['access_token'],
-	             	),
-                 	'json' => $body
+             		'headers' => $param['header'],
+                 	'json' => $param['body']
             	]);
 			
 		} catch (GuzzleException $e) {
@@ -154,9 +166,9 @@ class Paypal extends Model
 
 		$jsonResponse = json_decode((string)$response->getBody(), true);
 
-		$this->_data['saleInfo'] = $jsonResponse;
+		$paypal->_data['saleInfo'] = $jsonResponse;
 
-		return $this;
+		return $paypal;
 
 	}
     
