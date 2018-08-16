@@ -2,7 +2,7 @@
 
 
 <?php if($success): ?>
-	Payment success
+	Payment Braintree success
 <?php else: ?>
-	Payment fail
+	Payment Braintree fail
 <?php endif; ?>

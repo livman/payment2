@@ -2,17 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use Braintree_Transaction;
-use Braintree_Customer;
+//use Braintree_Transaction;
+//use Braintree_Customer;
 
 use Illuminate\Http\Request;
 
-use App\Paypal as Paypal;
-use App\Braintree as Braintree;
+//use App\Paypal as Paypal;
+//use App\Braintree as Braintree;
+
+use App\Payment;
+use App\Repositories\Paypal;
+use App\Repositories\Braintree;
 
 
 class PaymentsController extends Controller
 {
+	private $_payment;
+
+
+	/*
 	protected function paypal($param = array())
 	{
 		//$checkoutSession = $request->session()->get('checkout', array());
@@ -44,7 +52,9 @@ class PaymentsController extends Controller
 
 		return $approval_url;
 	}
+	*/
 
+/*
 	protected function braintree($param = array())
 	{
 
@@ -83,6 +93,7 @@ class PaymentsController extends Controller
 		return $braintreeModel->createSale($info);
 
 	}
+	*/
 
 	public function payment_process(Request $request)
 	{
@@ -109,15 +120,76 @@ class PaymentsController extends Controller
 			}
 			
 			// Use Paypal
-			$approval_url = $this->paypal($param);
+			$paypal = new Paypal();
 
-			return redirect($approval_url);
+			$this->_payment = new Payment($paypal);
+			
+			$paypal->setAuth(array(
+			    'AZlu1oYTlPMRpATYdqUlTZzPEMVn-PgHQsCC-uauXR-tZ3GDYL8gZCzAZaGAMmHCADHlWKGD5XCmZ7zQ', 
+			    'EFgGUwexWJDqmDUUzJFlUGRiyHq48FcT9IgQI2iD4Jb9GovBfNXpFPCfe2dDWTLHgCNAd2j5dJUqgD54'
+			));
+			$accessToken = $paypal->generateAccessToken();
+
+			$header = array(
+			    'Accept'          => 'application/json',
+			    'Authorization'   => 'Bearer '. $accessToken,
+			);
+
+			$body = array(
+			    'intent' => 'sale',
+			    'redirect_urls' => array(
+			        'return_url' => 'http://br4ndon.online:8777/return_url.php',
+			        'cancel_url' => 'http://br4ndon.online:8777/cancel_url.php'
+			    ),
+			    'payer' => array(
+			        'payment_method' => 'paypal'
+			    ),
+			    'transactions' => array(
+			        '0' => array(
+			            'amount' => array(
+			                'total' => $param['amount'],
+			                'currency' => $param['currency']
+			            )
+			        )
+			    )
+			);
+
+			$this->_payment->processSale(array(
+	            'header' => $header,
+	            'body' => $body
+	        ));
+
+			return redirect($paypal->getApprovalUrl());
 
 		}
 		else
 		{
 			// Use Braintree
-			$res = $this->braintree($param);
+			$braintree = new Braintree();
+
+			$this->_payment = new Payment($braintree);
+
+			list($param['mm'], $param['yy']) = explode("/", $param['exp_date']);
+
+			$info['vault'] = array(
+			    'customer' => array(
+			        'firstName' => $param['c_firstname'],
+			        'lastName' => $param['c_lastname'],
+			        'email' => $param['c_email'],
+			        'phone' => $param['c_phonenumber'],
+			    ),
+			    'cc' => array(
+			        'number' => $param['card_number'],
+			        'holder' => $param['c_firstname'] .' '. $param['c_lastname'],
+			        'mm' => $param['mm'],
+			        'yy' => $param['yy'],
+			        'cvv' => $param['cvv'],
+			    )
+			);
+
+			$info['sale'] = array('amount' => $param['amount']);
+
+			$res = $this->_payment->processSale($info);
 
 			$data['success'] = $res;
 		}
@@ -126,6 +198,7 @@ class PaymentsController extends Controller
 
 	}
 
+/*
     public function process(Request $request)
 	{
 	    $payload = $request->input('payload', false);
@@ -142,4 +215,5 @@ class PaymentsController extends Controller
 
 	    return response()->json($status);
 	}
+	*/
 }

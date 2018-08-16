@@ -4,8 +4,10 @@ namespace Tests\Feature;
 
 use App\Box;
 
-use App\TestPaypal;
-use App\TestBraintree;
+use App\Repositories\Paypal;
+use App\Repositories\Braintree;
+use App\Payment;
+
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -34,21 +36,27 @@ class BasicTest extends TestCase
         $this->assertTrue(true);
     }
 
+/*
     public function testXXX()
     {
-        $x = new TestPaypal();
+        $x = new Paypal();
+        $payment = new Payment($x);
 
-        $x->processSale($x, array());
+        $x->setAuth(array(
+            'AZlu1oYTlPMRpATYdqUlTZzPEMVn-PgHQsCC-uauXR-tZ3GDYL8gZCzAZaGAMmHCADHlWKGD5XCmZ7zQ', 
+            'EFgGUwexWJDqmDUUzJFlUGRiyHq48FcT9IgQI2iD4Jb9GovBfNXpFPCfe2dDWTLHgCNAd2j5dJUqgD54'
+        ));
+
+
+
+        $this->assertNotNull($x->generateAccessToken());
+
+
+        $payment->processSale(array());
 
         $this->assertTrue(true);
     }
+    */
 
-    public function testYYY()
-    {
-        $x = new TestBraintree();
 
-        $x->processSale($x, array());
-
-        $this->assertTrue(true);
-    }
 }
