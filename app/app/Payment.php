@@ -13,11 +13,16 @@ Class Payment
 		$this->_payment = $payment;
 	}
 
+	public function reformatParam(array $param)
+	{
+		return $this->_payment->generateParam($param);
+	}
 
 	public function processSale(array $param)
 	{
 		return $this->_payment->processSale($param);
 	}
+
 
 	public function logRecord(array $param)
 	{

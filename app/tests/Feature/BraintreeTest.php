@@ -14,16 +14,24 @@ class BraintreeTest extends TestCase
 {
 	private $_braintree;
 
+    private $_payment;
+
 	public function setUp()
     {
       //Initialize the test case
       $this->_braintree = new Braintree();
+
+      $this->_payment = new Payment($this->_braintree);
     }
 
+    public function testDummy()
+    {
+        $this->assertTrue(true);
+    }
 
+    
     public function testProcessSale()
     {
-        $payment = new Payment($this->_braintree);
 
         $info['vault'] = array(
             'customer' => array(
@@ -43,15 +51,14 @@ class BraintreeTest extends TestCase
 
         $info['sale'] = array('amount' => '10.5');
 
-        $this->assertTrue($payment->processSale($info));
+        $this->assertTrue($this->_payment->processSale($info));
 
     }
+    
 
 
     public function testLog()
     {
-        $payment = new Payment($this->_braintree);
-
         $data = array(
             'merchantId' => '123456',
             'firstName' => 'Brandon',
@@ -63,10 +70,71 @@ class BraintreeTest extends TestCase
             'updated_at' => time(),
         );
 
-        $this->assertTrue($payment->logRecord($data));
+        $this->assertTrue($this->_payment->logRecord($data));
     }
     
+    public function testGetPaymentProviderObject()
+    {
+        $res = getPaymentProvider(
+            array('cardNumber' => '4111111111111111', 'currencyType' => 'THB'),
+            array('USD', 'EUR', 'AUD')
+        );
+
+        $this->assertEquals('Braintree', $res);
+
+        $res = getPaymentProvider(
+            array('cardNumber' => '4111111111111111', 'currencyType' => 'USD'),
+            array('USD', 'EUR', 'AUD')
+        );
+
+        $this->assertEquals('Paypal', $res);
+    }
+
+    public function testGenerateParam()
+    {
+        $res = $this->_braintree->generateParam(
+            array(
+                    'c_firstname' => 'firstname',
+                    'c_lastname' => 'lastname',
+                    'c_email' => 'aaa@gmail.com',
+                    'c_phonenumber' => '02541254132',
+                    'card_number' => '4111111111111111',
+                    'exp_date' => '02/22',
+                    'amount' => '10.5',
+                    'cvv' => '123',
+                )
+        );
+
+        $this->assertArrayHasKey('vault', $res);
+    }
+
+    public function testCreateVault()
+    {
+        $info['vault'] = array(
+            'customer' => array(
+                'firstName' => 'firstname',
+                'lastName' => 'lastname',
+                'email' => 'aaa@gmail.com',
+                'phone' => '02541254132',
+            ),
+            'cc' => array(
+                'number' => '4111111111111111',
+                'holder' => 'dxxx xxxxx',
+                'mm' => '02',
+                'yy' => '22',
+                'cvv' => '123',
+            )
+        );
+
+        $info['sale'] = array('amount' => '10.8');
+
+        $res = $this->_braintree->createVault($info);
+
+        $this->assertNotEquals(0, $res);
+
+    }
 
 
+    
 }
 

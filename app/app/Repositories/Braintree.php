@@ -71,6 +71,31 @@ Class Braintree implements PaymentInterface
 	
 	}
 
+	public function generateParam(array $param)
+	{
+		list($param['mm'], $param['yy']) = explode("/", $param['exp_date']);
+
+		$info['vault'] = array(
+		    'customer' => array(
+		        'firstName' => $param['c_firstname'],
+		        'lastName' => $param['c_lastname'],
+		        'email' => $param['c_email'],
+		        'phone' => $param['c_phonenumber'],
+		    ),
+		    'cc' => array(
+		        'number' => $param['card_number'],
+		        'holder' => $param['c_firstname'] .' '. $param['c_lastname'],
+		        'mm' => $param['mm'],
+		        'yy' => $param['yy'],
+		        'cvv' => $param['cvv'],
+		    )
+		);
+
+		$info['sale'] = array('amount' => $param['amount']);
+
+		return $info;
+	}
+
 	public function processSale(array $param)
 	{
 		$customerId = $this->createVault($param);

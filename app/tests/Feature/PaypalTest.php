@@ -16,22 +16,42 @@ class PaypalTest extends TestCase
 {
 	private $_paypal;
 
+    private $_payment;
+
 	public function setUp()
     {
-      //Initialize the test case
-      $this->_paypal = new Paypal();
+        //Initialize the test case
+        $this->_paypal = new Paypal();
+
+        $this->_payment = new Payment($this->_paypal);
     }
 
+    public function testDummy()
+    {
+        $this->assertTrue(true);
+    }
 
+    public function testGenerateParam()
+    {
+        $res = $this->_paypal->generateParam(
+            array(
+                    'amount' => '10.5',
+                    'currency' => 'USD',
+                )
+        );
+
+        $this->assertArrayHasKey('body', $res);
+    }
+
+    public function testGenerateAccessToken()
+    {
+        $this->assertNotNull($this->_paypal->generateAccessToken());
+    }
+
+    
     public function testProcessSale()
     {
-        $payment = new Payment($this->_paypal);
 
-
-        $this->_paypal->setAuth(array(
-            'AZlu1oYTlPMRpATYdqUlTZzPEMVn-PgHQsCC-uauXR-tZ3GDYL8gZCzAZaGAMmHCADHlWKGD5XCmZ7zQ', 
-            'EFgGUwexWJDqmDUUzJFlUGRiyHq48FcT9IgQI2iD4Jb9GovBfNXpFPCfe2dDWTLHgCNAd2j5dJUqgD54'
-        ));
         $accessToken = $this->_paypal->generateAccessToken();
 
         $header = array(
@@ -58,7 +78,7 @@ class PaypalTest extends TestCase
             )
         );
 
-        $res = $payment->processSale(array(
+        $res = $this->_payment->processSale(array(
             'header' => $header,
             'body' => $body
         ));

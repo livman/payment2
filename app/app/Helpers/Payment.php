@@ -61,3 +61,28 @@ if ( !function_exists('inspectCardType') )
 
 	}
 }
+
+if ( !function_exists('getPaymentProvider') )
+{
+	function getPaymentProvider(array $cardInfo, array $paypalGroupCurrencyType)
+	{
+		$cardType = inspectCardType($cardInfo['cardNumber']);
+
+		if ( in_array($cardInfo['currencyType'], $paypalGroupCurrencyType) ) 
+		{
+			if ( $cardInfo['currencyType'] != 'USD' && $cardType == 'American' )
+			{
+				// AMEX is possible to use only for US
+				throw new \Exception('AMEX is possible to use only for US');
+			}
+
+			return 'Paypal';
+		}
+		else
+		{
+			return 'Braintree';
+		}
+
+
+	}
+}

@@ -37,7 +37,47 @@ Class Paypal implements PaymentInterface
 
 	public function getAuth()
 	{
-		return $this->_auth;
+		return array(env('PAYPAL_AUTH_USER'), env('PAYPAL_AUTH_PASS'));
+	}
+
+	public function generateParam(array $param)
+	{
+		$this->setAuth(
+			array(
+		    env('PAYPAL_AUTH_USER'), 
+		    env('PAYPAL_AUTH_PASS')
+		));
+
+		$accessToken = $this->generateAccessToken();
+
+		$header = array(
+		    'Accept'          => 'application/json',
+		    'Authorization'   => 'Bearer '. $accessToken,
+		);
+
+		$body = array(
+		    'intent' => 'sale',
+		    'redirect_urls' => array(
+		        'return_url' => env('PAYPAL_RETURN_URL'),
+		        'cancel_url' => env('PAYPAL_CANCEL_URL')
+		    ),
+		    'payer' => array(
+		        'payment_method' => 'paypal'
+		    ),
+		    'transactions' => array(
+		        '0' => array(
+		            'amount' => array(
+		                'total' => $param['amount'],
+		                'currency' => $param['currency']
+		            )
+		        )
+		    )
+		);
+
+		return array(
+	            'header' => $header,
+	            'body' => $body
+	        );
 	}
 
 	public function getApprovalUrl()
@@ -99,7 +139,7 @@ Class Paypal implements PaymentInterface
 	             		'Accept'          => 'application/json',
 	             		'Accept-Language' => 'en_US',
 	             	),
-            		'auth' => $this->_auth,
+            		'auth' => array(env('PAYPAL_AUTH_USER'), env('PAYPAL_AUTH_PASS')),
                  	'form_params' => array(
                  		'grant_type' => 'client_credentials'
                  	)
