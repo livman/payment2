@@ -12,3 +12,5 @@
 5. To migrate db -> run 'docker-compose exec app php artisan migrate'
 
 6. launch app -> your_host:7000
+
+7. To run unittest -> run 'docker-compose exec app ./vendor/bin/phpunit'
