@@ -2,48 +2,26 @@
 
 namespace App\Http\Controllers;
 
-//use Braintree_Transaction;
-//use Braintree_Customer;
 
 use Illuminate\Http\Request;
 
-//use App\Paypal as Paypal;
-//use App\Braintree as Braintree;
-
-use App\Payment;
-use App\Repositories\Paypal;
-use App\Repositories\Braintree;
+use App\Services\PaymentService;
 
 
 class PaymentsController extends Controller
 {
-	private $_payment;
+	private $_paymentService;
+
+	public function __construct()
+	{
+		$this->_paymentService = new PaymentService();
+	}
 
 	public function payment_process(Request $request)
 	{
 		$param = $request->input();
 
-		$currency = strtoupper($param['currency']);
-		$cardNumber = $param['card_number'];
-
-		// Validate card
-		if ( !luhn_check($cardNumber) ) {
-			throw new Exception('Invalid Card');
-		}
-
-		$paymentProviderType = getPaymentProvider(
-			array('cardNumber' => $cardNumber, 'currencyType' => $currency),
-			array('USD', 'EUR', 'AUD')
-		);
-
-		// Generate sting to create object
-		$class = 'App\\Repositories\\'. $paymentProviderType;
-
-		$paymentProvider = new $class;
-
-
-		$this->_payment = new Payment($paymentProvider);
-		$res = $this->_payment->processSale($this->_payment->reformatParam($param));
+		$res = $this->_paymentService->create($param);
 
 		if( $res === true )
 		{

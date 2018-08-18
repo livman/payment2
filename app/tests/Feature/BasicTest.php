@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Box;
+
 
 use App\Repositories\Paypal;
 use App\Repositories\Braintree;
