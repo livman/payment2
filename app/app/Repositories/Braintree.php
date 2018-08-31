@@ -4,13 +4,17 @@ namespace App\Repositories;
 
 use App\Interfaces\PaymentInterface;
 
+
 use Braintree_Transaction;
 use Braintree_Customer;
 
 use App\Model\Braintree as BraintreeModel;
+use App\Repositories\BraintreeDataInput;
 
 Class Braintree implements PaymentInterface
 {
+
+
 	public function logRecord(array $param)
 	{
 		// Log to db
@@ -23,20 +27,7 @@ Class Braintree implements PaymentInterface
 		try {
 
 			// Create customer in braintree Vault
-			$result = Braintree_Customer::create(array(
-			  'firstName' => $info['vault']['customer']['firstName'],
-			  'lastName'  => $info['vault']['customer']['lastName'],
-			  'phone'     => $info['vault']['customer']['phone'],
-			  'email'     => $info['vault']['customer']['email'],
-			  'creditCard' => array(
-			    'number'          => $info['vault']['cc']['number'],
-			    'cardholderName'  => $info['vault']['cc']['holder'],
-			    'expirationMonth' => $info['vault']['cc']['mm'],
-			    'expirationYear'  => $info['vault']['cc']['yy'],
-			    'cvv'             => $info['vault']['cc']['cvv'],
-			
-			  )
-			));
+			$result = Braintree_Customer::create($info);
 
 			if ($result->success) 
 			{
@@ -71,34 +62,9 @@ Class Braintree implements PaymentInterface
 	
 	}
 
-	public function generateParam(array $param)
+	public function processSale(BraintreeDataInput $dataInputInstance)
 	{
-		list($param['mm'], $param['yy']) = explode("/", $param['exp_date']);
-
-		$info['vault'] = array(
-		    'customer' => array(
-		        'firstName' => $param['c_firstname'],
-		        'lastName' => $param['c_lastname'],
-		        'email' => $param['c_email'],
-		        'phone' => $param['c_phonenumber'],
-		    ),
-		    'cc' => array(
-		        'number' => $param['card_number'],
-		        'holder' => $param['c_firstname'] .' '. $param['c_lastname'],
-		        'mm' => $param['mm'],
-		        'yy' => $param['yy'],
-		        'cvv' => $param['cvv'],
-		    )
-		);
-
-		$info['sale'] = array('amount' => $param['amount']);
-
-		return $info;
-	}
-
-	public function processSale(array $param)
-	{
-		$customerId = $this->createVault($param);
+		$customerId = $this->createVault($dataInputInstance->getDataInput());
 
 
 		if( $customerId <= 0 )

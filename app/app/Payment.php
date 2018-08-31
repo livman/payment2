@@ -3,19 +3,26 @@
 namespace App;
 
 use App\Interfaces\PaymentInterface;
+use App\Interfaces\InputDataInterface;
 
 Class Payment
 {
 	private $_payment;
 
-	public function __construct(PaymentInterface $payment)
+	private $_input_data;
+
+	public function __construct(
+		PaymentInterface $payment,
+		InputDataInterface $input_data
+	)
 	{
 		$this->_payment = $payment;
+		$this->_input_data = $input_data;
 	}
 
 	public function reformatParam(array $param)
 	{
-		return $this->_payment->generateParam($param);
+		return $this->_input_data->prepareData($this->_payment, $param);
 	}
 
 	public function processSale(array $param)

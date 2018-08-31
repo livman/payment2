@@ -28,7 +28,7 @@ class PaymentService
 
 		$paymentClass = 'App\\Repositories\\'. $paymentProviderType;
 
-		$payment = new Payment(new $paymentClass);
+		$payment = new Payment(new $paymentClass, new 'App\\Repositories\\'. $paymentProviderType .'DataInput');
 
 		return $payment->processSale($payment->reformatParam($param));
 	}

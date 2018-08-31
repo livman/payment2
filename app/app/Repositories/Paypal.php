@@ -7,10 +7,10 @@ use App\Interfaces\PaymentInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
 
+use App\Repositories\PaypalDataInput;
+
 Class Paypal implements PaymentInterface
 {
-
-	private $_auth;
 
 	private $_curlHandler;
 
@@ -28,56 +28,6 @@ Class Paypal implements PaymentInterface
 	public function logRecord(array $param)
 	{
 		
-	}
-
-	public function setAuth(array $auth)
-	{
-		$this->_auth = $auth;
-	}
-
-	public function getAuth()
-	{
-		return array(env('PAYPAL_AUTH_USER'), env('PAYPAL_AUTH_PASS'));
-	}
-
-	public function generateParam(array $param)
-	{
-		$this->setAuth(
-			array(
-		    env('PAYPAL_AUTH_USER'), 
-		    env('PAYPAL_AUTH_PASS')
-		));
-
-		$accessToken = $this->generateAccessToken();
-
-		$header = array(
-		    'Accept'          => 'application/json',
-		    'Authorization'   => 'Bearer '. $accessToken,
-		);
-
-		$body = array(
-		    'intent' => 'sale',
-		    'redirect_urls' => array(
-		        'return_url' => env('PAYPAL_RETURN_URL'),
-		        'cancel_url' => env('PAYPAL_CANCEL_URL')
-		    ),
-		    'payer' => array(
-		        'payment_method' => 'paypal'
-		    ),
-		    'transactions' => array(
-		        '0' => array(
-		            'amount' => array(
-		                'total' => $param['amount'],
-		                'currency' => $param['currency']
-		            )
-		        )
-		    )
-		);
-
-		return array(
-	            'header' => $header,
-	            'body' => $body
-	        );
 	}
 
 	public function getApprovalUrl()
@@ -98,20 +48,11 @@ Class Paypal implements PaymentInterface
 		return $approval_url;
 	}
 
-	public function processSale(array $param)
+	public function processSale(PaypalDataInput $dataInputInstance)
 	{
-		if( !$this->getAuth() )
-		{
-			return false;
-		}
-
 		try {
 			$response = $this->_curlHandler->request('POST', 
-            	$this->_endpoint .'/payments/payment', 
-            	[ 
-             		'headers' => $param['header'],
-                 	'json' => $param['body']
-            	]);
+            	$this->_endpoint .'/payments/payment', $dataInputInstance->getDataInput());
 			
 		} catch (GuzzleException $e) {
 			echo 'Message: ' .$e->getMessage(); die;
@@ -129,7 +70,7 @@ Class Paypal implements PaymentInterface
 		return (isset($this->_data['access_token'])) ? $this->_data['access_token'] : '';
 	}
 
-	public function generateAccessToken()
+	public function generateAccessToken($user, $pass)
 	{
 		try {
 			$response = $this->_curlHandler->request('POST', 
@@ -139,7 +80,7 @@ Class Paypal implements PaymentInterface
 	             		'Accept'          => 'application/json',
 	             		'Accept-Language' => 'en_US',
 	             	),
-            		'auth' => array(env('PAYPAL_AUTH_USER'), env('PAYPAL_AUTH_PASS')),
+            		'auth' => array($user, $pass),
                  	'form_params' => array(
                  		'grant_type' => 'client_credentials'
                  	)
