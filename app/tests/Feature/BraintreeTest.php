@@ -8,6 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 
 use App\Repositories\Braintree;
+use App\Repositories\BraintreeDataInput;
 use App\Payment;
 
 class BraintreeTest extends TestCase
@@ -21,7 +22,7 @@ class BraintreeTest extends TestCase
       //Initialize the test case
       $this->_braintree = new Braintree();
 
-      $this->_payment = new Payment($this->_braintree);
+      //$this->_payment = new Payment($this->_braintree);
     }
 
     public function testDummy()
@@ -29,6 +30,26 @@ class BraintreeTest extends TestCase
         $this->assertTrue(true);
     }
 
+    public function testInputParameter()
+    {
+        $input_object = new BraintreeDataInput();
+
+        $input_object->prepareData(array(
+            'c_firstname' => 'Brandon',
+            'c_lastname' => 'Brandon',
+            'c_phonenumber' => '025425412',
+            'c_email' => 'brandon@gmail.com',
+            'card_number' => '4554311335',
+            'cvv' => '123',
+            'exp_date' => '02/22'
+        ));
+
+        $res = $input_object->getDataInput();
+
+        $this->assertTrue(isset($res['lastName']));
+    }
+
+    /*
     
     public function testProcessSale()
     {
@@ -134,7 +155,7 @@ class BraintreeTest extends TestCase
 
     }
 
-
+    */
     
 }
 

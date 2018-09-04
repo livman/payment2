@@ -8,6 +8,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
 
 use App\Repositories\PaypalDataInput;
+use App\Repositories\PaypalPrepareService;
 
 Class Paypal implements PaymentInterface
 {
@@ -51,8 +52,8 @@ Class Paypal implements PaymentInterface
 	public function processSale(PaypalDataInput $dataInputInstance)
 	{
 		try {
-			$response = $this->_curlHandler->request('POST', 
-            	$this->_endpoint .'/payments/payment', $dataInputInstance->getDataInput());
+			$response = $service->getCurlHandle()->request('POST', 
+            	$dataInputInstance->getService()->getEndPointActionPayment(), $dataInputInstance->getDataInput());
 			
 		} catch (GuzzleException $e) {
 			echo 'Message: ' .$e->getMessage(); die;
@@ -65,37 +66,6 @@ Class Paypal implements PaymentInterface
 		return $this;
 	}
 
-	public function getAccessToken()
-	{
-		return (isset($this->_data['access_token'])) ? $this->_data['access_token'] : '';
-	}
-
-	public function generateAccessToken($user, $pass)
-	{
-		try {
-			$response = $this->_curlHandler->request('POST', 
-            	$this->_endpoint .'/oauth2/token', 
-            	[ 
-             		'headers' => array(
-	             		'Accept'          => 'application/json',
-	             		'Accept-Language' => 'en_US',
-	             	),
-            		'auth' => array($user, $pass),
-                 	'form_params' => array(
-                 		'grant_type' => 'client_credentials'
-                 	)
-            	]);
-			
-		} catch (GuzzleException $e) {
-			echo 'Message: ' .$e->getMessage(); die;
-		}
-
-		// convert response json to object
-		$jsonResponse = json_decode((string)$response->getBody(), true);
-
-		$this->_data['access_token'] = $jsonResponse['access_token'];
-
-		return $this->_data['access_token'];
-	}
+	
 
 }

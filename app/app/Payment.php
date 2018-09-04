@@ -22,14 +22,13 @@ Class Payment
 
 	public function reformatParam(array $param)
 	{
-		return $this->_input_data->prepareData($this->_payment, $param);
+		return $this->_input_data->prepareData($param);
 	}
 
-	public function processSale(array $param)
+	public function processSale(InputDataInterface $input_data)
 	{
-		return $this->_payment->processSale($param);
+		return $this->_payment->processSale($input_data);
 	}
-
 
 	public function logRecord(array $param)
 	{

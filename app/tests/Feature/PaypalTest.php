@@ -6,10 +6,9 @@ use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
-
-
 use App\Repositories\Paypal;
-use App\Repositories\Braintree;
+use App\Repositories\PaypalDataInput;
+use App\Repositories\PaypalPrepareService;
 use App\Payment;
 
 class PaypalTest extends TestCase
@@ -18,6 +17,7 @@ class PaypalTest extends TestCase
 
     private $_payment;
 
+/*
 	public function setUp()
     {
         //Initialize the test case
@@ -25,12 +25,38 @@ class PaypalTest extends TestCase
 
         $this->_payment = new Payment($this->_paypal);
     }
+    */
 
     public function testDummy()
     {
         $this->assertTrue(true);
     }
 
+    public function testInputParameter()
+    {
+        $input_object = new PaypalDataInput();
+
+        $input_object->prepareData(array(
+            'amount' => '1000',
+            'currency' => 'USD',
+        ));
+
+        $res = $input_object->getDataInput();
+
+        $this->assertTrue(isset($res['header']));
+    }
+
+    public function testGetAccessToken()
+    {
+        $paypalService = new PaypalPrepareService();
+
+        $paypalService->generateAccessToken();
+
+        $this->assertNotNull($paypalService->getAccessToken());
+    }
+
+
+    /*
     public function testGenerateParam()
     {
         $res = $this->_paypal->generateParam(
@@ -88,6 +114,6 @@ class PaypalTest extends TestCase
     }
     
 
-
+    */
 }
 

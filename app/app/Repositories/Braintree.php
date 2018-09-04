@@ -9,7 +9,7 @@ use Braintree_Transaction;
 use Braintree_Customer;
 
 use App\Model\Braintree as BraintreeModel;
-use App\Repositories\BraintreeDataInput;
+use App\Interfaces\InputDataInterface;
 
 Class Braintree implements PaymentInterface
 {
@@ -62,7 +62,7 @@ Class Braintree implements PaymentInterface
 	
 	}
 
-	public function processSale(BraintreeDataInput $dataInputInstance)
+	public function processSale(InputDataInterface $dataInputInstance)
 	{
 		$customerId = $this->createVault($dataInputInstance->getDataInput());
 

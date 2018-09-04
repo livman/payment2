@@ -1,14 +1,15 @@
 <?php
 
 namespace App\Repositories;
-use App\Repositories\InputDataInterface;
+use App\Interfaces\InputDataInterface;
+//use App\Interfaces\PaymentInterface;
 
 Class BraintreeDataInput implements InputDataInterface
 {
 
 	private $_data = array();
 
-	public function prepareData(App\Repositories\Braintree $braintree_instance, array $input)
+	public function prepareData(array $input)
 	{
 		list($input['mm'], $input['yy']) = explode("/", $input['exp_date']);
 
@@ -23,6 +24,7 @@ Class BraintreeDataInput implements InputDataInterface
 			  'expirationMonth' => $input['mm'],
 			  'expirationYear'  => $input['yy'],
 			  'cvv'             => $input['cvv'],
+			)
 		);
 
 		return $this;

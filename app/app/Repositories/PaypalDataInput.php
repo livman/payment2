@@ -1,22 +1,27 @@
 <?php
 
 namespace App\Repositories;
-use App\Repositories\InputDataInterface;
+use App\Interfaces\InputDataInterface;
+use App\Repositories\PaypalPrepareService;
 
 Class PaypalDataInput implements InputDataInterface
 {
 
 	private $_data = array();
 
-	private $_endpoint;
+	private $_service;
 
-	public function prepareData(App\Repositories\Paypal $paypal_instance, array $input)
+
+	public function __construct()
 	{
-		$this->_endpoint = env('PAYPAL_ENDPOINT');
+		$this->_service = new PaypalPrepareService();
+	}
 
+	public function prepareData(array $input)
+	{
 		$header = array(
 		    'Accept'          => 'application/json',
-		    'Authorization'   => 'Bearer '. $paypal_instance->generateAccessToken(env('PAYPAL_AUTH_USER'), env('PAYPAL_AUTH_PASS')),
+		    'Authorization'   => 'Bearer '. $this->_service->getAccessToken(),
 		);
 
 		$body = array(
@@ -44,6 +49,11 @@ Class PaypalDataInput implements InputDataInterface
 		);
 
 		return $this;
+	}
+
+	public function getService()
+	{
+		return $this->_service;
 	}
 
 	public function getDataInput()
