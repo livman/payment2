@@ -13,7 +13,7 @@ Class BraintreeDataInput implements InputDataInterface
 	{
 		list($input['mm'], $input['yy']) = explode("/", $input['exp_date']);
 
-		$this->_data = array(
+		$this->_data['vault'] = array(
 			'firstName' => $input['c_firstname'],
 			'lastName'  => $input['c_lastname'],
 			'phone'     => $input['c_phonenumber'],
@@ -26,6 +26,8 @@ Class BraintreeDataInput implements InputDataInterface
 			  'cvv'             => $input['cvv'],
 			)
 		);
+
+		$this->_data['sale']['amount'] = $input['amount'];
 
 		return $this;
 

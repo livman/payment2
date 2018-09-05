@@ -52,6 +52,8 @@ class PaypalTest extends TestCase
 
         $paypalService->generateAccessToken();
 
+        //echo $paypalService->getAccessToken(); die;
+
         $this->assertNotNull($paypalService->getAccessToken());
     }
 

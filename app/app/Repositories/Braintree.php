@@ -64,7 +64,9 @@ Class Braintree implements PaymentInterface
 
 	public function processSale(InputDataInterface $dataInputInstance)
 	{
-		$customerId = $this->createVault($dataInputInstance->getDataInput());
+		$param = $dataInputInstance->getDataInput();
+
+		$customerId = $this->createVault($param['vault']);
 
 
 		if( $customerId <= 0 )

@@ -7,23 +7,17 @@ use App\Interfaces\PaymentInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
 
-use App\Repositories\PaypalDataInput;
+use App\Interfaces\InputDataInterface;
 use App\Repositories\PaypalPrepareService;
 
 Class Paypal implements PaymentInterface
 {
 
-	private $_curlHandler;
-
-	private $_endpoint;
-
 	private $_data;
 
 	public function __construct()
 	{
-		$this->_curlHandler = new Client();
 
-		$this->_endpoint = env('PAYPAL_ENDPOINT');
 	}
 
 	public function logRecord(array $param)
@@ -49,15 +43,23 @@ Class Paypal implements PaymentInterface
 		return $approval_url;
 	}
 
-	public function processSale(PaypalDataInput $dataInputInstance)
+	public function processSale(InputDataInterface $dataInputInstance)
 	{
+		$param = $dataInputInstance->getDataInput();
+		print_r($param); die;
 		try {
-			$response = $service->getCurlHandle()->request('POST', 
-            	$dataInputInstance->getService()->getEndPointActionPayment(), $dataInputInstance->getDataInput());
+			$response = $dataInputInstance->getService()->getCurlHandle()->request('POST', 
+            	$dataInputInstance->getService()->getEndPointActionPayment(), 
+            	[
+            		'header' => $param['header'],
+            		'json' => $param['body']
+            	]);
 			
 		} catch (GuzzleException $e) {
 			echo 'Message: ' .$e->getMessage(); die;
 		}
+
+		print_r($response); die;
 
 		$jsonResponse = json_decode((string)$response->getBody(), true);
 

@@ -41,12 +41,13 @@ class BraintreeTest extends TestCase
             'c_email' => 'brandon@gmail.com',
             'card_number' => '4554311335',
             'cvv' => '123',
-            'exp_date' => '02/22'
+            'exp_date' => '02/22',
+            'amount' => '20'
         ));
 
         $res = $input_object->getDataInput();
 
-        $this->assertTrue(isset($res['lastName']));
+        $this->assertTrue(isset($res['vault']['lastName']));
     }
 
     /*
